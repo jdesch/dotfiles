@@ -1,24 +1,27 @@
 """ neovim rc
-
 """ Python3 VirtualEnv
 let g:python3_host_prog = expand('/Users/jwdesch/.pyenv/shims/python')
 let g:python_host_prog = expand('/usr/local/bin/python2')
+
 """ plugins
+let $VIM_OSX = system('uname -a | grep -i darwin') != ''
+
 call plug#begin('~/.config/nvim/plugged')
-" Autocomplete
-    Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-    Plug 'ervandew/supertab'
-" Python support
-    Plug 'deoplete-plugins/deoplete-jedi'
-" C support
-    Plug 'deoplete-plugins/deoplete-clang'
-" ASM support
-    Plug 'deoplete-plugins/deoplete-asm'
-" Haskell support
-    Plug 'neovimhaskell/haskell-vim'
+    Plug 'tpope/vim-commentary'
+    Plug 'tpope/vim-surround'
+
+    if $VIM_OSX
+        Plug '/usr/local/opt/fzf'
+    else
+        Plug '~/fzf', {'dir' : '~/.fzf', 'do' : './install --all' }
+    endif
+
+    Plug 'junegunn/fzf.vim'
+
 call plug#end()
 
 """ General
+let mapleader=' '
 syntax on
 set encoding=utf-8
 set fileencoding=utf-8
@@ -31,6 +34,7 @@ set mouse=a
 set wildmenu
 set wildmode=list:longest
 set path+=**
+set wildignore+=.git,.DS_Store
 
 """ Visual stuff
 set termguicolors
@@ -40,7 +44,6 @@ set background=dark
 set number
 set laststatus=2
 set showmatch
-set updatetime=300
 set signcolumn=yes
 
 set invlist
@@ -53,18 +56,12 @@ set incsearch
 set ignorecase
 set smartcase
 
-" copy and paste to/from vIM and the clipboard
-nnoremap <C-y> +y
-vnoremap <C-y> +y
-nnoremap <C-p> +P
-vnoremap <C-p> +P
-
 " access system clipboard
-set clipboard=unnamed
+set clipboard+=unnamedplus
 
-" swapfiles location
-set backupdir=/tmp/
-set directory=/tmp/
+" no swaps/backups
+set nobackup
+set noswapfile
 
 """ Indentation
 set expandtab
@@ -72,6 +69,24 @@ set smarttab
 set shiftwidth=4
 set softtabstop=4
 set tabstop=4
+
+"""better substitution
+if exists('&inccommand')
+    set inccommand=split "Nvim specific
+endif
+
+" split to the right or below current
+set splitright
+set splitbelow
+
+""" vim fixes
+""" make Y consistent with C and D
+nnoremap Y y$
+""" u to undo U to redo, easier
+nnoremap U <C-r>
+""" Wrapped lines work...
+nnoremap j gj
+nnoremap k gk
 
 augroup numbertoggle
     autocmd!
@@ -88,32 +103,49 @@ command W w !sudo tee % > /dev/null
 " ctags
 command! MakeTags !ctags -R .
 
-" HASKELL settings
-let g:haskell_enable_quantification = 1   " to enable highlighting of `forall`
-let g:haskell_enable_recursivedo = 1      " to enable highlighting of `mdo` and `rec`
-let g:haskell_enable_arrowsyntax = 1      " to enable highlighting of `proc`
-let g:haskell_enable_pattern_synonyms = 1 " to enable highlighting of `pattern`
-let g:haskell_enable_typeroles = 1        " to enable highlighting of type roles
-let g:haskell_enable_static_pointers = 1  " to enable highlighting of `static`
-let g:haskell_backpack = 1                " to enable highlighting of backpack keywords
+""" Netrw act as file menu
+" set autochdir 
+let g:netrw_banner          = 0
+let g:netrw_winsize         = 20
+let g:netrw_liststyle       = 3
+let g:netrw_altv            = 1
+let g:netrw_cursor          = 1
+let g:netrw_browse_split    = 4
+augroup ProjectDrawer
+    autocmd!
+    autocmd VimEnter * :Vexplore
+augroup END
+autocmd FileType netrw setl bufhidden=wipe
+noremap  <C-e> :Vexplore<CR>
 
-"" Deoplete settings
-" Supertab
-let g:SuperTabDefaultCompletionType = '<TAB>'
-" - «Deoplete requires Neovim with Python3 enabled»
-let g:python3_host_prog       = '/usr/bin/python3'
-let g:python3_host_skip_check = 1
+"fzf 
+let g:fzf_layout = { 'down' : '~20%' }
+let g:fzf_buffers_jump = 1
+let g:fzf_tags_command = 'ctags -R'
 
-autocmd CompleteDone * if pumvisible() == 0 | pclose | endif
-let g:deoplete#enable_at_startup = 1
-let g:deoplete#enable_smart_case = 1
-let g:deoplete#omni#functions    = {}
-call deoplete#custom#option('auto_complete_delay', 250)
+" Shortcuts
+"
+" [F]ile Find
+nmap <silent> <leader>f :FZF<CR>
+" [B]uffer Find
+nmap <silent> <leader>b :Buffers<CR>
+" [L]ine Find
+nmap <silent> <leader>l :Rg<CR>
+" [T]ag find
+nmap <silent> <leader>t :Tags<CR>
+"" nvim [H]elp Find
+nmap <silent> <leader>h :Helptags<CR>
+" toggle between buffers
+nnoremap <leader><leader> <c-^>
 
-inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
+" Mapping selecting mappings
+" Note: figure out what vim has bound
+nmap <leader><tab> <plug>(fzf-maps-n)
+xmap <leader><tab> <plug>(fzf-maps-x)
+omap <leader><tab> <plug>(fzf-maps-o)
 
-" Python autocompletion
-let g:deoplete#sources#jedi#show_docstring = 1
-
-"use fzf in vim
-set rtp+=/usr/local/opt/fzf
+" Insert mode completion
+imap <c-x><c-k> <plug>(fzf-complete-word)
+imap <c-x><c-f> <plug>(fzf-complete-path)
+imap <c-x><c-j> <plug>(fzf-complete-file-ag)
+imap <c-x><c-l> <plug>(fzf-complete-line)
