@@ -1,4 +1,5 @@
 """ neovim rc
+
 """ Python3 VirtualEnv
 let g:python3_host_prog = expand('/Users/jwdesch/.pyenv/shims/python')
 let g:python_host_prog = expand('/usr/local/bin/python2')
@@ -17,7 +18,6 @@ call plug#begin('~/.config/nvim/plugged')
     endif
 
     Plug 'junegunn/fzf.vim'
-
 call plug#end()
 
 """ General
@@ -104,19 +104,45 @@ command W w !sudo tee % > /dev/null
 command! MakeTags !ctags -R .
 
 """ Netrw act as file menu
+
 " set autochdir 
-let g:netrw_banner          = 0
-let g:netrw_winsize         = 20
-let g:netrw_liststyle       = 3
-let g:netrw_altv            = 1
-let g:netrw_cursor          = 1
-let g:netrw_browse_split    = 4
+let g:netrw_banner          = 0     "No Banner
+let g:netrw_winsize         = 20    "20% of the screen
+let g:netrw_liststyle       = 3     "dir listing style
+let g:netrw_altv            = 1     "split to the right
+let g:netrw_cursor          = 1     "cursor graphics
+let g:netrw_browse_split    = 4     "How windows open (use prev window)
+"""
+let g:NetrwIsOpen=0  "for toggling powers
+
+" you can quit the explorer
+autocmd FileType netrw setl bufhidden=wipe
+
+"toggle powers
+function! ToggleNetrw()
+    if g:NetrwIsOpen
+        let i = bufnr("$")
+        while (i >= 1)
+            if (getbufvar(i, "&filetype") == "netrw")
+                silent exe "bwipeout " . i
+            endif
+            let i-=1
+        endwhile
+        let g:NetrwIsOpen=0
+    else
+        let g:NetrwIsOpen=1
+        silent Vexplore
+    endif
+endfunction
+
+" start open
 augroup ProjectDrawer
     autocmd!
-    autocmd VimEnter * :Vexplore
+    autocmd VimEnter * :call ToggleNetrw()
 augroup END
-autocmd FileType netrw setl bufhidden=wipe
-noremap  <C-e> :Vexplore<CR>
+
+" toggle
+noremap <silent><leader>e :call ToggleNetrw()<CR>
 
 "fzf 
 let g:fzf_layout = { 'down' : '~20%' }
