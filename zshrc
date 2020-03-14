@@ -35,10 +35,14 @@ plugins=(
     compleat
     fzf
     git
+    history-substring-search
     osx
     pyenv
     zsh-navigation-tools
 )
+
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down
 
 source $ZSH/oh-my-zsh.sh
 
