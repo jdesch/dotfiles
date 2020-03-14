@@ -18,10 +18,10 @@ ZSH_COLORIZE_TOOL=pygmentize
 ZSH_COLORIZE_STYLE="colorful"
 
 # Uncomment the following line to enable command auto-correction.
- ENABLE_CORRECTION="true"
+ENABLE_CORRECTION="true"
 
 # Uncomment the following line to display red dots whilst waiting for completion.
- COMPLETION_WAITING_DOTS="true"
+COMPLETION_WAITING_DOTS="true"
 
 # Which plugins would you like to load?
 # Standard plugins can be found in ~/.oh-my-zsh/plugins/*
@@ -29,17 +29,15 @@ ZSH_COLORIZE_STYLE="colorful"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
-	git
-    iterm2
-    osx
-    brew
+    autojump
+    git
     colorize
     command-not-found
-    pyenv
+    compleat
     fzf
+    osx
+    pyenv
     zsh-navigation-tools
-    history
-    history-substring-search
 )
 
 source $ZSH/oh-my-zsh.sh
